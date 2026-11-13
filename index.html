@@ -1,138 +1,30 @@
 <!DOCTYPE html>
-<html lang="de">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <!-- Sorgt dafür, dass die Seite auf dem Handy in passender Größe erscheint -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-
-  <!-- Angaben für "Zum Home-Bildschirm" auf dem iPhone: Seite öffnet sich dann wie eine App -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="WifiViewer">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#0f1419">
-
-  <title>WifiPasswordViewer</title>
-
-  <style>
-    /* Farben an einer Stelle festlegen, damit man sie leicht ändern kann */
-    :root {
-      --hintergrund: #0f1419;
-      --karte: #1a2129;
-      --rand: #2c3743;
-      --text: #e6edf3;
-      --text-leise: #8b98a5;
-      --akzent: #4cc2ff;
-      --warnung: #f2b84b;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      /* Abstand zum Rand, auch um die Kerbe/Insel beim iPhone herum */
-      padding: max(24px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
-      background: var(--hintergrund);
-      color: var(--text);
-      font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.5;
-    }
-
-    main {
-      max-width: 720px;
-      margin: 0 auto;
-    }
-
-    h1 {
-      margin: 0 0 4px;
-      font-size: 1.6rem;
-    }
-
-    .untertitel {
-      margin: 0 0 24px;
-      color: var(--text-leise);
-    }
-
-    /* Der gelbe Hinweiskasten */
-    .hinweis {
-      margin: 0 0 24px;
-      padding: 12px 14px;
-      border: 1px solid var(--warnung);
-      border-radius: 10px;
-      color: var(--warnung);
-      font-size: 0.95rem;
-    }
-
-    h2 {
-      margin: 0 0 8px;
-      font-size: 1rem;
-      color: var(--text-leise);
-      font-weight: 600;
-    }
-
-    /* Der Kasten mit dem Quelltext */
-    pre {
-      margin: 0 0 24px;
-      padding: 14px;
-      background: var(--karte);
-      border: 1px solid var(--rand);
-      border-radius: 10px;
-      /* Lange Zeilen lassen sich seitlich schieben, statt die Seite zu sprengen */
-      overflow-x: auto;
-      font-family: Consolas, Menlo, monospace;
-      font-size: 0.85rem;
-      line-height: 1.6;
-    }
-
-    code { font-family: Consolas, Menlo, monospace; }
-
-    p code {
-      padding: 1px 5px;
-      background: var(--karte);
-      border-radius: 4px;
-      font-size: 0.9em;
-    }
-
-    a { color: var(--akzent); }
-  </style>
+    <title>Wifi Password Viewer</title>
 </head>
 <body>
-  <main>
-    <h1>WifiPasswordViewer</h1>
-    <p class="untertitel">Nur zu Lernzwecken (Educational Purpose Only)</p>
+    <div id="results"></div>
 
-    <p class="hinweis">
-      Diese Seite zeigt den Code nur an, sie führt ihn nicht aus.
-      Eine Webseite darf aus Sicherheitsgründen nicht auf gespeicherte
-      WLAN-Passwörter zugreifen, weder auf dem iPhone noch am PC.
-    </p>
+    <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="wifi-password/wifi-password.js"></script>
+    <script>
+        $(document).ready(function() {
+            function showWifiInfo(wifiList) {
+                let html = '<h2>Wi-Fi Networks:</h2>';
+                wifiList.forEach(function(wifi) {
+                    html += `<p>${wifi.ssid}</p>`;
+                });
+                $('#results').html(html);
+            }
 
-    <h2>index.js</h2>
-    <!-- Der Code aus index.js. Die Zeichen < und > sind als &lt; und &gt; geschrieben,
-         damit der Browser sie als Text anzeigt und nicht als HTML versteht. -->
-    <pre><code>const wifi = require('wifi-password');
-
-wifi.getWifiInfo().then(info =&gt; {
-  console.log('Wi-Fi Networks:');
-  info.forEach(network =&gt; {
-    console.log(`SSID: ${network.ssid}`);
-    console.log(`Password: ${network.password}\n`);
-  });
-}).catch(error =&gt; {
-  console.error('Error:', error);
-});</code></pre>
-
-    <h2>Warum läuft das nicht im Browser?</h2>
-    <p>
-      Der Befehl <code>require(...)</code> gehört zu Node.js, einem Programm,
-      das JavaScript direkt auf dem Computer ausführt. Im Browser gibt es
-      <code>require</code> nicht, und das Paket <code>wifi-password</code>
-      fragt das Betriebssystem ab, was nur ein Programm auf dem eigenen
-      Rechner darf.
-    </p>
-    <p>
-      Den Quelltext findest du im
-      <a href="https://github.com/SahnePutr/WifiPasswordViewer">GitHub-Repository</a>.
-    </p>
-  </main>
+            // Get all connected networks
+            WifiPassword.getWifiInfo().then(function(wifiList) {
+                showWifiInfo(wifiList);
+            }).catch(function(error) {
+                console.error('Error:', error);
+            });
+        });
+    </script>
 </body>
 </html>
